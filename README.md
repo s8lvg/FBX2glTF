@@ -160,32 +160,27 @@ Then, compilation on Unix machines will look something like:
 
 ```
 # Determine SDK location & build settings for Linux vs (Recent) Mac OS X
-> if [[ "$OSTYPE" == "darwin"* ]]; then
-    export CONAN_CONFIG="-s compiler=apple-clang -s compiler.version=10.0 -s compiler.libcxx=libc++"
-    export FBXSDK_TARBALL="https://github.com/zellski/FBXSDK-Darwin/archive/2019.2.tar.gz"
-elif [[ "$OSTYPE" == "linux"* ]]; then
-    export CONAN_CONFIG="-s compiler.libcxx=libstdc++11"
-    export FBXSDK_TARBALL="https://github.com/zellski/FBXSDK-Linux/archive/2019.2.tar.gz"
-else
-    echo "This snippet only handles Mac OS X and Linux."
-fi
+export CONAN_CONFIG="-s compiler.libcxx=libstdc++11"
+export FBXSDK_TARBALL="https://github.com/zellski/FBXSDK-Linux/archive/2019.2.tar.gz"
+
 
 # Fetch Project
-> git clone https://github.com/facebookincubator/FBX2glTF.git
-> cd FBX2glTF
+git clone https://github.com/facebookincubator/FBX2glTF.git
+cd FBX2glTF
 
 # Fetch and unpack FBX SDK
-> curl -sL "${FBXSDK_TARBALL}" | tar xz --strip-components=1 --include */sdk/
+curl -sL "${FBXSDK_TARBALL}" | tar xz --strip-components=1 --include */sdk/
 # Then decompress the contents
-> zstd -d -r --rm sdk
+zstd -d -r --rm sdk
 
 # Install and configure Conan, if needed
-> pip3 install conan # or sometimes just "pip"; you may need to install Python/PIP
-> conan remote add --force bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+pip3 install conan # or sometimes just "pip"; you may need to install Python/PIP
+conan remote add --force bincrafters https://bincrafters.jfrog.io/artifactory/api/conan/public-conan
+conan config set general.revisions_enabled=1
 
 # Initialize & run build
-> conan install . -i build -s build_type=Release ${CONAN_CONFIG}
-> conan build . -bf build
+conan install . -i build -s build_type=Release -s compiler.libcxx=libstdc++11 --build=missing
+conan build . -bf build
 ```
 
 If all goes well, you will end up with a statically linked executable in `./build/FBX2glTF`.
